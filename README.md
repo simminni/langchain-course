@@ -9,6 +9,7 @@ A hands-on repository for LangChain course exercises, experiments, and projects.
 - [Project Structure](#-project-structure)
 - [Prerequisites](#-prerequisites)
 - [Getting Started](#-getting-started)
+- [Installed Dependencies & Modules (`uv`)](#-installed-dependencies--modules-uv)
 - [Environment Configuration](#-environment-configuration)
 - [Running Course Scripts](#-running-course-scripts)
 - [Code Quality & Formatting](#-code-quality--formatting)
@@ -34,7 +35,8 @@ langchain-course/
 └── src/
     └── langchain_course/
         ├── __init__.py        # Package entrypoint
-        └── hello_world.py     # Introduction to Prompts, Models, and LCEL chains
+        ├── hello_world.py     # Introduction to Prompts, Models, and LCEL chains
+        └── search_agent.py    # ReAct search agent with Tavily & custom tools
 ```
 
 ---
@@ -76,6 +78,31 @@ You can activate the virtual environment or run commands directly through `uv ru
 ```bash
 source .venv/bin/activate
 ```
+
+---
+
+## 📦 Installed Dependencies & Modules (`uv`)
+
+The project dependencies are managed via [`uv`](https://docs.astral.sh/uv/) and declared in [`pyproject.toml`](file:///Users/simminni/source/langchain-course/pyproject.toml):
+
+| Package / Module | Purpose |
+| :--- | :--- |
+| **`langchain`** | Core orchestration framework for prompts, chains, tools, and agents. |
+| **`langchain-google-genai`** | Official LangChain integration for Google Gemini models (`gemini-3.5-flash-lite`, `gemini-3.7-flash`). |
+| **`langchain-ollama`** | Integration for running local models via Ollama (e.g. `gemma3:270m`, `llama3`). |
+| **`langchain-openai`** | Integration for OpenAI models (`gpt-4o`, `gpt-4o-mini`, embeddings). |
+| **`langchain-tavily`** | Prebuilt LangChain tool bindings for Tavily Search (`TavilySearch`). |
+| **`tavily-python`** | Official Python SDK client for Tavily AI search. |
+| **`python-dotenv`** | Loads environment variables from the root `.env` file into `os.environ`. |
+| **`black`** | Deterministic, opinionated Python code formatter. |
+| **`isort`** | Python utility to sort and organize module imports. |
+
+> [!IMPORTANT]
+> **LLM Provider Note**:
+> This repository primarily uses **Google Generative AI (`ChatGoogleGenerativeAI`)** models (e.g., `gemini-3.5-flash-lite`) for cloud execution and **Ollama (`ChatOllama`)** for local zero-cost execution.
+> 
+> If you decide to use a different LLM provider (such as OpenAI via `ChatOpenAI` or Anthropic via `ChatAnthropic`), ensure you add the respective API key (e.g. `OPENAI_API_KEY`) to your `.env` file and install any relevant driver packages for it to work.
+
 
 ---
 
