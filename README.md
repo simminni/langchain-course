@@ -14,6 +14,7 @@ A hands-on repository for LangChain course exercises, experiments, and projects.
 - [Code Quality & Formatting](#-code-quality--formatting)
 - [Module Deep Dives](#-module-deep-dives)
   - [1. `hello_world.py` — Prompt Templates & LCEL](#1-hello_worldpy--prompt-templates--lcel)
+  - [2. `search_agent.py` — ReAct Agents & Tool Calling](#2-search_agentpy--react-agents--tool-calling)
 - [Adding New Course Modules](#-adding-new-course-modules)
 - [Acknowledgements & Credits](#-acknowledgements--credits)
 
@@ -94,8 +95,8 @@ OPENAI_API_KEY=your_openai_api_key_here
 # Tavily Search API (for agent search tools)
 TAVILY_API_KEY=your_tavily_api_key_here
 
-# --- Observability & Tracing ---
-# LangSmith (Monitoring & debugging LangChain runs)
+# --- Observability & Tracing (Optional) ---
+# LangSmith (Visual monitoring & debugging LangChain runs)
 LANGSMITH_TRACING=true
 LANGSMITH_ENDPOINT=https://api.smith.langchain.com
 LANGSMITH_API_KEY=your_langsmith_api_key_here
@@ -108,8 +109,11 @@ LANGSMITH_PROJECT=langchain-course
 | :--- | :--- | :--- |
 | **Google Gemini** | Cloud LLM inference (`ChatGoogleGenerativeAI`) | Sign in to [Google AI Studio](https://aistudio.google.com/app/apikey) and click **"Create API key"**. |
 | **OpenAI** | Cloud LLM inference (`ChatOpenAI`) & embeddings | Go to [OpenAI Platform API Keys](https://platform.openai.com/api-keys) and generate a secret key. |
-| **LangSmith** | Visual tracing, debugging, and prompt monitoring | Sign up at [LangSmith](https://smith.langchain.com/), navigate to **Settings > API Keys**, and create a personal API key. |
 | **Tavily AI** | AI-optimized search engine for LangChain agents | Create a free account at [Tavily](https://app.tavily.com/) and copy your API key from the dashboard. |
+| **LangSmith** *(Optional)* | Visual tracing, debugging, and prompt monitoring | Sign up at [LangSmith](https://smith.langchain.com/), navigate to **Settings > API Keys**, and create a personal API key. |
+
+> **Note**: LangSmith observability and tracing is completely optional. If you do not configure LangSmith keys, your LangChain code will still run normally without remote trace logging.
+
 
 
 ---
@@ -191,6 +195,40 @@ This module serves as the foundational introduction to core LangChain concepts:
    ```bash
    uv run python src/langchain_course/hello_world.py
    ```
+
+### 2. `search_agent.py` — ReAct Agents & Tool Calling
+
+**Path**: `src/langchain_course/search_agent.py`
+
+Demonstrates building tool-using AI agents with LangChain and Tavily Search:
+
+#### Key Concepts Demonstrated
+
+1. **Agent Creation (`create_agent`)**:
+   - Configures a reasoning agent with structured tools, system instructions, and LLM backends.
+
+2. **Custom & Prebuilt Tools (`@tool`, `TavilySearch`)**:
+   - Uses `TavilySearch` for live web querying.
+   - Defines custom python tools like `verify_job_url` with the `@tool` decorator.
+
+3. **Structured Response Formatting (`response_format`)**:
+   - Rather than returning raw, unstructured strings, the agent uses **Pydantic** models to return predictable, strongly-typed JSON objects.
+   - **Why each class and component is needed**:
+     - **`Source(BaseModel)`**: Defines a clean, dedicated sub-schema for web citations (e.g. `url: str`), enabling structured attribution for every source used.
+     - **`AgentResponse(BaseModel)`**: The top-level schema representing the final output payload. It bundles the synthesized narrative (`answer: str`) with the list of references (`sources: List[Source]`).
+     - **`Field(description="...")`**: Injects semantic instructions into the JSON schema sent to the LLM, guiding the model on what specific data to populate in each field.
+     - **`default_factory=list`**: Serves two purposes:
+       1. **Mutable Safety**: Calls `list()` to dynamically create a fresh, separate empty list for every new instance, avoiding Python's shared mutable default traps.
+       2. **Validation Resilience**: Makes the `sources` field optional during parsing, so if the LLM omits the `"sources"` key in its JSON payload, Pydantic initializes it cleanly to `[]` instead of raising a `ValidationError`.
+
+#### How to Run `search_agent.py`
+
+Ensure `TAVILY_API_KEY` and `GOOGLE_API_KEY` are set in `.env`, then run:
+
+```bash
+uv run python src/langchain_course/search_agent.py
+```
+
 
 ---
 
